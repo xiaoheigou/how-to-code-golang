@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"time"
 )
 
 func main() {
@@ -11,6 +12,7 @@ func main() {
 	for i := rand.Intn(13); i >= 0; i-- {
 		fmt.Println(<-ch, i)
 	}
+	time.Sleep(time.Second)
 	quit <- "Bye!"
 	fmt.Printf("Generator says %s", <-quit)
 }

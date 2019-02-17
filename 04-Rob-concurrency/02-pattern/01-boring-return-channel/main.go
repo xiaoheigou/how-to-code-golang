@@ -1,23 +1,43 @@
 package main
+
 import (
 	"fmt"
 	"time"
 )
-func main(){
+
+func main() {
 	c := boring("boring!")
-	for i := 0 ;i<5;i++{
-		fmt.Printf("You say %q\n",<-c)
+
+	//***********METHOD1
+	// for i := 0; i < 1111111111111; i++ {
+	// 	fmt.Printf("You say %q\n", <-c)
+	// }
+	// fmt.Println("U are boring;I'm leaving.")
+
+	//***********METHOD2
+	// for v := range c {
+	// 	fmt.Printf("You say %q\n", v)
+	// }
+
+	//***********METHOD3
+	for {
+		v, ok := <-c
+		if !ok {
+			break
+		}
+		fmt.Printf("You say %q\n", v)
 	}
-	fmt.Println("U are boring;I'm leaving.")
 }
 
-func boring(msg string)<-chan string{
+func boring(msg string) <-chan string {
 	c := make(chan string)
-	go func(){
-		for i :=0;;i++{
-			c<-fmt.Sprintf("%s %d",msg,i)
+	go func() {
+		for i := 0; i < 5; i++ {
+			c <- fmt.Sprintf("%s %d", msg, i)
 			time.Sleep(time.Duration(time.Second))
 		}
+		close(c)
 	}()
-	return c 
+
+	return c
 }

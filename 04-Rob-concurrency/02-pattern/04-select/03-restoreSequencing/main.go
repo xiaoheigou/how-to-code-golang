@@ -52,6 +52,7 @@ func main() {
 		msg2 := <-c
 		fmt.Println(msg2.str)
 
+		time.Sleep(time.Second)
 		msg1.wait <- true // Setting this unblocks `boring` to now iterate through the `for` loop again
 		msg2.wait <- true
 	}
