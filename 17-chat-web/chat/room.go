@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/xiaoheigou/how-to-code-golang/17-chat-web/chat/trace"
 )
 
 const (
@@ -21,6 +22,9 @@ type room struct {
 	join    chan *client
 	leave   chan *client
 	clients map[*client]bool
+	// tracer will receive trace information of activity
+	// in the room.
+	tracer trace.Tracer
 }
 
 func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -46,12 +50,15 @@ func (r *room) run() {
 		select {
 		case client := <-r.join:
 			r.clients[client] = true
+			r.tracer.Trace("New client joined")
 		case client := <-r.leave:
 			delete(r.clients, client)
+			r.tracer.Trace("client left")
 			close(client.send)
 		case msg := <-r.forward:
 			for client := range r.clients {
 				client.send <- msg
+				r.tracer.Trace(" -- sent to client")
 			}
 		}
 	}
@@ -63,5 +70,6 @@ func newRoom() *room {
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
+		tracer:  trace.Off(),
 	}
 }
